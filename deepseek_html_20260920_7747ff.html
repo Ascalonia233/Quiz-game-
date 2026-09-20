@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0b0a1a">
+<title>Deepseek大肥鱼考考你·猜谜游戏</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#16a34a;
+  --yellow:#d97706;
+  --gray:#2b2c45;
+  --line:#4b4d6b;
+  --text:#eef2ff;
+  --muted:#9aa0b8;
+  --accent:#8b5cf6;
+}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:#0b0a1a;
+  background-image:radial-gradient(900px 520px at 50% -12%, #3b2a6b 0%, rgba(11,10,26,0) 70%);
+  color:var(--text);
+  display:flex;flex-direction:column;align-items:center;
+  min-height:100dvh;
+  padding:8px 14px calc(10px + env(safe-area-inset-bottom));
+  overflow-x:hidden;
+  user-select:none;
+  -webkit-user-select:none;
+  transition:background .5s ease;
+}
+input{user-select:text;-webkit-user-select:text}
+
+/* ============ 隐藏关卡主题 ============ */
+body.secret-theme{
+  background:#1a0b18;
+  background-image:radial-gradient(900px 520px at 50% -12%, #6b2a5b 0%, rgba(26,11,24,0) 70%);
+}
+body.secret-theme .top h1{
+  background:linear-gradient(90deg,#fbbf24,#f472b6 55%,#a78bfa);
+  -webkit-background-clip:text;background-clip:text;
+}
+body.secret-theme .icon-btn{
+  border-color:rgba(245,158,11,.3);
+  background:rgba(245,158,11,.08);
+}
+body.secret-theme .inputbar button{
+  background:linear-gradient(135deg,#f59e0b,#ec4899);
+  box-shadow:0 6px 18px rgba(236,72,153,.42);
+}
+body.secret-theme .inputbar input:focus{
+  border-color:#ec4899;
+  box-shadow:0 0 0 3px rgba(236,72,153,.22);
+}
+body.secret-theme .fish-cover{
+  border-color:rgba(245,158,11,.5);
+  box-shadow:0 6px 24px rgba(236,72,153,.35);
+}
+body.secret-theme .result button{
+  background:linear-gradient(135deg,#f59e0b,#ec4899);
+  box-shadow:0 8px 22px rgba(236,72,153,.42);
+}
+body.secret-theme .hintbar button{
+  background:rgba(245,158,11,.22);
+  color:#fcd34d;
+}
+
+/* ---------- 顶部 ---------- */
+.top{
+  width:100%;max-width:460px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:4px 2px 0;
+}
+.top h1{
+  font-size:15px;font-weight:800;letter-spacing:.4px;
+  background:linear-gradient(90deg,#a78bfa,#f472b6 60%,#38bdf8);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  line-height:1.25;
+}
+.icon-btn{
+  width:36px;height:36px;border-radius:11px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);color:#fff;font-size:16px;cursor:pointer;
+  display:grid;place-items:center;transition:.2s;flex-shrink:0;
+}
+.icon-btn:active{transform:scale(.92);background:rgba(255,255,255,.12)}
+
+/* ---------- 大肥鱼封面（可点击解锁隐藏） ---------- */
+.fish-cover{
+  width:100%;max-width:460px;
+  margin-top:6px;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(139,92,246,.25);
+  background:linear-gradient(180deg, rgba(139,92,246,.12), rgba(255,255,255,.02));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+  position:relative;
+  cursor:pointer;
+  transition:transform .15s ease, border-color .3s, box-shadow .3s;
+  -webkit-tap-highlight-color:transparent;
+}
+.fish-cover:active{transform:scale(.985)}
+.fish-cover img{
+  width:100%;height:auto;
+  max-height:105px;
+  object-fit:cover;
+  object-position:center 22%;
+  display:block;
+  pointer-events:none;
+  -webkit-user-drag:none;
+}
+.fish-cover .fish-tag{
+  position:absolute;
+  bottom:5px;right:9px;
+  background:rgba(11,10,26,.8);
+  backdrop-filter:blur(4px);
+  padding:2px 7px;
+  border-radius:7px;
+  font-size:9.5px;
+  color:#c4b5fd;
+  font-weight:700;
+  border:1px solid rgba(139,92,246,.3);
+  pointer-events:none;
+  transition:.3s;
+}
+body.secret-theme .fish-cover .fish-tag{
+  color:#fcd34d;
+  border-color:rgba(245,158,11,.5);
+  background:rgba(26,11,24,.85);
+}
+.fish-cover.unlocked .fish-tag{
+  animation:tagPulse 2s ease-in-out infinite;
+}
+@keyframes tagPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(236,72,153,.5)}
+  50%{box-shadow:0 0 0 6px rgba(236,72,153,0)}
+}
+
+/* ---------- 品类切换 ---------- */
+.modes-wrap{
+  position:relative;
+  width:100%;max-width:460px;
+  margin-top:7px;
+}
+.modes-wrap::after{
+  content:'';
+  position:absolute;top:0;right:0;bottom:0;width:26px;
+  border-radius:0 13px 13px 0;
+  background:linear-gradient(90deg, rgba(11,10,26,0), rgba(11,10,26,.85));
+  pointer-events:none;
+  opacity:1;transition:opacity .25s;
+}
+body.secret-theme .modes-wrap::after{
+  background:linear-gradient(90deg, rgba(26,11,24,0), rgba(26,11,24,.85));
+}
+.modes-wrap.at-end::after{opacity:0}
+.modes{
+  display:flex;gap:5px;
+  background:rgba(255,255,255,.05);padding:5px;border-radius:13px;
+  border:1px solid rgba(255,255,255,.07);
+  overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+}
+.modes::-webkit-scrollbar{display:none}
+.modes button{
+  flex:0 0 auto;
+  padding:8px 12px;border:0;border-radius:9px;background:transparent;
+  color:var(--muted);font-size:12px;font-weight:700;font-family:inherit;
+  cursor:pointer;transition:.22s;white-space:nowrap;
+  display:flex;align-items:center;gap:4px;
+}
+.modes button .em{font-size:13px;line-height:1}
+.modes button.active{
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  color:#fff;box-shadow:0 4px 14px rgba(139,92,246,.45);
+}
+
+/* 隐藏关卡按钮样式 */
+.modes button.secret-tab{
+  background:linear-gradient(135deg, rgba(245,158,11,.15), rgba(236,72,153,.15));
+  color:#fbbf24;
+  box-shadow:inset 0 0 0 1px rgba(245,158,11,.4);
+}
+.modes button.secret-tab.active{
+  background:linear-gradient(135deg,#f59e0b,#ec4899) !important;
+  color:#fff !important;
+  box-shadow:0 4px 16px rgba(236,72,153,.5) !important;
+}
+
+/* ---------- 难度选择 ---------- */
+.diff-bar{
+  width:100%;max-width:460px;
+  margin-top:6px;
+  display:flex;gap:4px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  padding:4px;border-radius:12px;
+}
+.diff-bar button{
+  flex:1;
+  padding:6px 2px;
+  border:0;border-radius:8px;background:transparent;
+  color:#6b7090;font-size:11.5px;font-weight:700;
+  font-family:inherit;cursor:pointer;transition:.2s;
+  white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:3px;
+}
+.diff-bar button:active{transform:scale(.96)}
+.diff-bar button[data-diff="easy"].active{
+  background:rgba(34,197,94,.22);
+  color:#86efac;
+  box-shadow:inset 0 0 0 1px rgba(34,197,94,.45);
+}
+.diff-bar button[data-diff="normal"].active{
+  background:rgba(139,92,246,.24);
+  color:#c4b5fd;
+  box-shadow:inset 0 0 0 1px rgba(139,92,246,.45);
+}
+.diff-bar button[data-diff="hard"].active{
+  background:rgba(239,68,68,.22);
+  color:#fca5a5;
+  box-shadow:inset 0 0 0 1px rgba(239,68,68,.45);
+}
+
+/* ---------- 提示栏 ---------- */
+.hintbar{
+  width:100%;max-width:460px;margin-top:7px;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;padding:8px 8px 8px 11px;
+  min-height:44px;
+}
+.hintbar .txt{
+  flex:1;font-size:12px;line-height:1.45;color:#c7cbe0;min-width:0;
+}
+.hintbar .txt b{color:#fff}
+.hintbar button{
+  flex-shrink:0;border:0;border-radius:8px;padding:7px 10px;
+  background:rgba(139,92,246,.22);color:#c4b5fd;
+  font-size:11.5px;font-weight:700;font-family:inherit;cursor:pointer;transition:.2s;
+}
+.hintbar button:active{transform:scale(.94)}
+.hintbar button:disabled{opacity:.35;cursor:default}
+
+/* ---------- 棋盘 ---------- */
+.board-wrap{
+  flex:1;min-height:0;width:100%;
+  display:flex;align-items:center;justify-content:center;
+  padding:8px 0;
+}
+.board{
+  --gap:6px;--cell:70px;--len:2;
+  display:flex;flex-direction:column;gap:var(--gap);
+  width:max-content;
+}
+.row{display:flex;gap:var(--gap)}
+.cell{
+  width:var(--cell);height:var(--cell);
+  display:grid;place-items:center;
+  border:2px solid rgba(255,255,255,.13);
+  border-radius:10px;
+  background:rgba(255,255,255,.03);
+  font-size:calc(var(--cell) * .48);
+  font-weight:800;
+  line-height:1;
+  color:#fff;
+  transition:background .18s ease,border-color .18s ease,color .18s ease;
+}
+.cell.filled{border-color:rgba(255,255,255,.42);background:rgba(255,255,255,.07)}
+.cell.flip{animation:flip .5s ease both}
+.cell.correct{background:var(--green);border-color:var(--green)}
+.cell.present{background:var(--yellow);border-color:var(--yellow)}
+.cell.absent{background:var(--gray);border-color:var(--gray);color:#7c81a3}
+.cell.bounce{animation:bounce .6s ease !important}
+
+@keyframes flip{
+  0%{transform:rotateX(0deg)}
+  50%{transform:rotateX(-90deg)}
+  100%{transform:rotateX(0deg)}
+}
+@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  35%{transform:translateY(-18px)}
+  65%{transform:translateY(-7px)}
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+.row.shake{animation:shake .42s ease}
+
+/* ---------- 输入区 ---------- */
+.inputbar{
+  width:100%;max-width:460px;
+  display:flex;gap:8px;
+}
+.inputbar input{
+  flex:1;min-width:0;
+  padding:12px 15px;border-radius:13px;
+  border:1.5px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:#fff;font-size:16px;font-family:inherit;
+  letter-spacing:3px;
+  outline:none;transition:.2s;
+}
+.inputbar input::placeholder{color:#5f6480;letter-spacing:0;font-size:12.5px}
+.inputbar input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(139,92,246,.22);
+  background:rgba(255,255,255,.09);
+}
+.inputbar input:disabled{opacity:.5}
+.inputbar button{
+  padding:0 20px;border-radius:13px;border:0;
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  color:#fff;font-size:14px;font-weight:800;font-family:inherit;
+  cursor:pointer;transition:.2s;white-space:nowrap;
+  box-shadow:0 6px 18px rgba(124,58,237,.38);
+}
+.inputbar button:active{transform:scale(.95)}
+.inputbar button:disabled{opacity:.4;box-shadow:none;cursor:default;transform:none}
+
+/* ---------- 底部 ---------- */
+.footer{
+  width:100%;max-width:460px;
+  margin-top:8px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.legend span{
+  display:flex;align-items:center;gap:4px;
+  font-size:10px;color:#7d82a0;
+}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+.dot.g{background:var(--green)}
+.dot.y{background:var(--yellow)}
+.dot.n{background:var(--gray)}
+.stats-line{font-size:10px;color:#666b8a}
+.stats-line b{color:#c7cbe0}
+
+/* ---------- 结果弹层 ---------- */
+.result{
+  position:fixed;left:50%;bottom:0;z-index:60;
+  transform:translate(-50%,115%);
+  width:min(100%,440px);
+  padding:22px 22px calc(24px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,#221e45,#14122a);
+  border:1px solid rgba(255,255,255,.1);
+  border-bottom:0;
+  border-radius:26px 26px 0 0;
+  box-shadow:0 -12px 46px rgba(0,0,0,.7);
+  transition:transform .42s cubic-bezier(.2,.9,.3,1);
+  text-align:center;
+}
+body.secret-theme .result{
+  background:linear-gradient(180deg,#3a1a2e,#1a0b18);
+  border-color:rgba(245,158,11,.25);
+}
+.result.show{transform:translate(-50%,0)}
+.r-title{font-size:18px;font-weight:800;margin-bottom:8px;line-height:1.3}
+.r-title.win{color:#4ade80}
+.r-title.lose{color:#fb7185}
+.r-sub{font-size:13px;color:#a9aec9;line-height:1.6;margin-bottom:16px}
+.r-sub b{color:#fff;font-size:16px;letter-spacing:1px}
+.result button{
+  width:100%;padding:13px;border:0;border-radius:14px;
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  color:#fff;font-size:15px;font-weight:800;font-family:inherit;
+  cursor:pointer;transition:.2s;
+  box-shadow:0 8px 22px rgba(124,58,237,.4);
+}
+.result button:active{transform:scale(.97)}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed;left:50%;top:14%;
+  transform:translate(-50%,-14px);
+  background:rgba(20,18,42,.96);
+  border:1px solid rgba(255,255,255,.12);
+  color:#fff;font-size:13px;font-weight:600;
+  padding:10px 18px;border-radius:12px;
+  opacity:0;pointer-events:none;transition:.25s;
+  z-index:80;white-space:nowrap;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.gold{
+  background:linear-gradient(135deg,#f59e0b,#ec4899);
+  border-color:rgba(255,255,255,.3);
+  box-shadow:0 10px 30px rgba(236,72,153,.5);
+}
+
+@media (max-width:380px){
+  .top h1{font-size:13.5px}
+  .modes button{font-size:11px;padding:7px 9px}
+  .diff-bar button{font-size:11px;padding:5px 1px}
+  .hintbar .txt{font-size:11px}
+  .inputbar input{font-size:15px;padding:11px 13px}
+  .inputbar button{padding:0 14px;font-size:13px}
+  .fish-cover img{max-height:88px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Deepseek大肥鱼考考你·猜谜游戏</h1>
+  <button class="icon-btn" id="newBtn" title="换一题">🔄</button>
+</header>
+
+<!-- 大肥鱼封面（点击7次解锁隐藏关卡） -->
+<div class="fish-cover" id="fishCover">
+  <!-- 请将您的图片保存为 cover.png 并与本 HTML 放在同一文件夹 -->
+  <img src="cover.png" alt="Deepseek大肥鱼" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+  <div style="display:none;width:100%;height:100px;align-items:center;justify-content:center;font-size:32px;color:#7c3aed;">🐟❓</div>
+  <div class="fish-tag" id="fishTag">大肥鱼正在思考…</div>
+</div>
+
+<div class="modes-wrap" id="modesWrap">
+  <nav class="modes" id="modes"></nav>
+</div>
+
+<!-- 难度选择 -->
+<div class="diff-bar" id="diffBar"></div>
+
+<div class="hintbar">
+  <span class="txt" id="hintText"></span>
+  <button id="hintBtn">🐟 提示</button>
+</div>
+
+<div class="board-wrap" id="boardWrap">
+  <div class="board" id="board"></div>
+</div>
+
+<div class="inputbar">
+  <input id="guessInput" type="text" autocomplete="off" autocorrect="off"
+         autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="给大肥鱼喂个词…">
+  <button id="submitBtn">投喂</button>
+</div>
+
+<div class="footer">
+  <div class="legend">
+    <span><i class="dot g"></i>字对位置对</span>
+    <span><i class="dot y"></i>字对位置错</span>
+    <span><i class="dot n"></i>无此字</span>
+  </div>
+  <div class="stats-line" id="statsLine"></div>
+</div>
+
+<div class="result" id="result">
+  <div class="r-title" id="rTitle"></div>
+  <div class="r-sub" id="rSub"></div>
+  <button id="nextBtn">再考考大肥鱼</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   难度配置
+   ========================================================= */
+const DIFFICULTY = {
+  easy:   { name:'简单', tries:8, hints:2, icon:'🌱' },
+  normal: { name:'普通', tries:6, hints:2, icon:'⚖️' },
+  hard:   { name:'困难', tries:4, hints:1, icon:'🔥' }
+};
+
+/* =========================================================
+   词库（可自由增删）
+   ========================================================= */
+const DATA = {
+  fruit: {
+    name: '水果', icon: '🍎',
+    items: [
+      ['苹果','红色或绿色，圆形，咬一口脆脆甜甜'],
+      ['香蕉','黄色的，弯弯的，剥开皮就能吃'],
+      ['葡萄','紫色或绿色，一颗颗串在一起'],
+      ['西瓜','夏天最解暑，绿皮红瓤黑籽'],
+      ['草莓','红红的，身上有小籽，形状像心'],
+      ['芒果','黄色果肉，热带水果，香甜浓郁'],
+      ['桃子','粉粉的，表面有绒毛，多汁'],
+      ['橘子','橙色，一瓣一瓣，皮可以剥开'],
+      ['柠檬','黄色，特别酸，常用来泡水'],
+      ['菠萝','外皮有刺，头顶长着一丛叶子'],
+      ['樱桃','红色小果子，有长长的梗'],
+      ['石榴','里面全是红宝石一样的籽'],
+      ['荔枝','外壳有疙瘩，果肉白嫩多汁'],
+      ['榴莲','气味浓烈，浑身是刺，水果之王'],
+      ['火龙果','红皮白肉，里面有黑色小籽'],
+      ['猕猴桃','棕色外皮，绿色果肉，酸酸甜甜'],
+      ['柚子','个头很大，皮很厚，果肉微苦'],
+      ['椰子','硬壳，里面有清甜的汁水'],
+      ['蓝莓','蓝色的小圆果，酸甜可口'],
+      ['哈密瓜','黄色果肉，香甜，产自新疆'],
+      ['山竹','紫色外壳，白色果肉，像蒜瓣'],
+      ['杨梅','紫红色，表面有小颗粒，酸甜'],
+      ['枇杷','黄色小果子，据说能润肺止咳'],
+      ['木瓜','橙色果肉，常用来炖汤'],
+      ['柿子','橙色，软软的，很甜']
+    ]
+  },
+  vegetable: {
+    name: '蔬菜', icon: '🥬',
+    items: [
+      ['白菜','叶子层层包裹，北方冬天常吃的菜'],
+      ['萝卜','白色或红色，长在土里，脆脆的'],
+      ['番茄','红色圆圆的，可以生吃也能炒蛋'],
+      ['黄瓜','绿色长条，表面有小刺，清脆'],
+      ['茄子','紫色长圆形，做鱼香茄子很好吃'],
+      ['土豆','长在土里，棕色皮，可以炸薯条'],
+      ['洋葱','一层一层剥开，切它会让人流泪'],
+      ['南瓜','橙黄色，万圣节会做成大灯笼'],
+      ['辣椒','有红有绿，小小的但很冲'],
+      ['菠菜','绿叶菜，据说吃了会力气大'],
+      ['芹菜','长条绿色，有独特的香味'],
+      ['冬瓜','个头很大，表面有白霜，夏天煲汤'],
+      ['苦瓜','表面疙疙瘩瘩，味道苦但清热'],
+      ['豆芽','豆子发芽长成，白白嫩嫩'],
+      ['蘑菇','有伞盖和菌柄，菌类食物'],
+      ['莲藕','长在淤泥里，切开里面全是孔'],
+      ['玉米','黄色颗粒排成排，长在棒子上'],
+      ['韭菜','细长的绿叶，包饺子很香'],
+      ['生菜','叶子翠绿，常夹在汉堡里'],
+      ['西兰花','绿色的一朵朵，像小树']
+    ]
+  },
+  animal: {
+    name: '动物', icon: '🐼',
+    items: [
+      ['老虎','森林之王，身上有条纹'],
+      ['大象','鼻子长长的，耳朵像蒲扇'],
+      ['熊猫','黑白相间，最爱吃竹子'],
+      ['兔子','长耳朵，爱吃胡萝卜，蹦蹦跳跳'],
+      ['猴子','会爬树，爱吃香蕉，很机灵'],
+      ['长颈鹿','脖子特别长，能吃到树顶的叶子'],
+      ['狮子','草原之王，雄性有一圈鬃毛'],
+      ['企鹅','住在南极，走路一摇一摆'],
+      ['蝴蝶','会飞，翅膀五颜六色'],
+      ['乌龟','背着硬壳，走得很慢'],
+      ['鲸鱼','生活在海里，是最大的动物'],
+      ['孔雀','会开屏，尾巴像一把大扇子'],
+      ['松鼠','大尾巴，爱藏松果'],
+      ['狐狸','很狡猾，尾巴蓬松'],
+      ['骆驼','沙漠之舟，背上有驼峰'],
+      ['蜜蜂','采花蜜，会酿蜂蜜'],
+      ['螃蟹','横着走，有两只大钳子'],
+      ['鳄鱼','水里埋伏，牙齿很锋利'],
+      ['猫头鹰','夜里活动，眼睛又大又圆'],
+      ['刺猬','身上长满尖刺，遇险会缩成球'],
+      ['袋鼠','澳大利亚的，肚子上有育儿袋'],
+      ['斑马','黑白条纹，长得像马'],
+      ['海豚','很聪明，会顶球，生活在水里'],
+      ['蜗牛','背着房子，走得很慢'],
+      ['蝙蝠','会飞的哺乳动物，夜里出来']
+    ]
+  },
+  vehicle: {
+    name: '交通', icon: '🚗',
+    items: [
+      ['自行车','两个轮子，靠脚蹬，很环保'],
+      ['汽车','四个轮子，马路上最常见'],
+      ['火车','在铁轨上跑，很长很多节'],
+      ['飞机','在天上飞，有两只机翼'],
+      ['轮船','在水上航行，个头很大'],
+      ['地铁','在地下隧道里跑，城市通勤'],
+      ['公交车','城市里载很多人的大车'],
+      ['摩托车','两个轮子，有发动机，跑得快'],
+      ['出租车','按里程收费，招手即停'],
+      ['救护车','白色车身有红十字，会鸣笛'],
+      ['消防车','红色，上面有云梯和水枪'],
+      ['直升机','头顶有旋翼，可以垂直起降'],
+      ['热气球','靠加热空气升空，有个大球囊'],
+      ['潜水艇','能在水下航行，像大鱼'],
+      ['火箭','用来发射航天器，直冲云霄'],
+      ['三轮车','三个轮子，可以载货载人'],
+      ['拖拉机','农用车辆，后面可挂农具'],
+      ['缆车','挂在钢索上，爬山用']
+    ]
+  },
+  daily: {
+    name: '日用品', icon: '🧴',
+    items: [
+      ['雨伞','下雨天撑开挡雨'],
+      ['牙刷','早晚用来清洁牙齿'],
+      ['毛巾','洗脸洗澡后擦干身体'],
+      ['镜子','能照出人影，整理仪容'],
+      ['剪刀','两片刀刃，用来剪东西'],
+      ['钥匙','用来开锁的小金属片'],
+      ['闹钟','到点会响，叫醒起床'],
+      ['台灯','放在桌上照明，有灯罩'],
+      ['水杯','用来喝水的容器'],
+      ['枕头','睡觉时垫在头下'],
+      ['被子','睡觉盖在身上保暖'],
+      ['扫帚','用来扫地，有长长的柄'],
+      ['冰箱','保鲜食物，保持低温'],
+      ['电视','可以看节目，有大屏幕'],
+      ['手机','能打电话、上网，随身携带'],
+      ['充电器','给电子设备补充电量'],
+      ['拖把','用来拖地，有个长柄'],
+      ['口罩','戴在脸上，防护口鼻'],
+      ['雨衣','下雨时穿在身上挡雨'],
+      ['洗衣粉','洗衣服用的，会起泡沫'],
+      ['筷子','吃饭时夹菜的两根细棒'],
+      ['勺子','用来舀汤或吃饭'],
+      ['指甲刀','用来剪指甲的小工具'],
+      ['梳子','用来梳理头发，有很多齿']
+    ]
+  },
+  job: {
+    name: '职业', icon: '👨‍🍳',
+    items: [
+      ['医生','看病救人，穿白大褂'],
+      ['老师','教书育人，站在讲台上'],
+      ['警察','维护治安，抓坏人'],
+      ['厨师','在厨房做菜，戴高帽子'],
+      ['司机','开车载人载货'],
+      ['护士','打针发药，照顾病人'],
+      ['律师','帮人打官司，懂法律'],
+      ['农民','种地种粮，面朝黄土'],
+      ['工人','在工厂或工地干活'],
+      ['演员','在影视剧里扮演角色'],
+      ['歌手','在舞台上唱歌'],
+      ['画家','用画笔创作作品'],
+      ['作家','写小说和文章'],
+      ['记者','采访报道新闻'],
+      ['消防员','灭火救援，穿橙色服'],
+      ['快递员','送包裹上门，骑电动车'],
+      ['理发师','给人剪头发'],
+      ['宇航员','坐火箭上太空'],
+      ['服务员','在餐厅端菜点单'],
+      ['工程师','设计建造桥梁和机器'],
+      ['飞行员','驾驶飞机在天上飞'],
+      ['程序员','写代码，和电脑打交道'],
+      ['银行柜员','在柜台办理存取款'],
+      ['兽医','给动物看病']
+    ]
+  },
+  instrument: {
+    name: '乐器', icon: '🎸',
+    items: [
+      ['钢琴','黑白琴键，一按就响'],
+      ['吉他','六根弦，可以弹唱'],
+      ['小提琴','用弓拉弦，声音悠扬'],
+      ['笛子','竹子做的，吹奏乐器'],
+      ['二胡','两根弦，用弓拉，声音苍凉'],
+      ['古筝','很多根弦，弹拨乐器'],
+      ['架子鼓','用棒敲击，节奏感很强'],
+      ['萨克斯','金属管身，吹奏爵士乐'],
+      ['口琴','小巧，用嘴吹吸发声'],
+      ['琵琶','四根弦，抱在怀里弹'],
+      ['手风琴','有键盘和风箱，拉推发声'],
+      ['电子琴','带键盘，能模拟多种音色'],
+      ['葫芦丝','葫芦做的，声音柔美'],
+      ['唢呐','声音高亢，红白喜事常用']
+    ]
+  },
+  sport: {
+    name: '运动', icon: '⚽',
+    items: [
+      ['足球','用脚踢，球门得分，11人一队'],
+      ['篮球','用手投，篮筐得分，5人一队'],
+      ['乒乓球','小球，拍子，桌面来回打'],
+      ['羽毛球','球拍击打，球有羽毛'],
+      ['排球','用手击球过网，6人一队'],
+      ['游泳','在水里划水前进'],
+      ['跑步','双腿交替向前，最简单的运动'],
+      ['跳远','助跑起跳，沙坑落地'],
+      ['跳高','越过横杆，背越式'],
+      ['击剑','拿剑对刺，穿防护服'],
+      ['射箭','拉弓瞄准靶心'],
+      ['滑雪','踩着雪板在雪地上滑'],
+      ['冲浪','站在板上，乘海浪前行'],
+      ['举重','把杠铃举过头顶'],
+      ['体操','翻腾跳跃，动作优美'],
+      ['跳绳','一根绳子，跳来跳去'],
+      ['拳击','戴手套，两人对打'],
+      ['马拉松','长跑比赛，全程四十二公里']
+    ]
+  },
+  idiom: {
+    name: '成语', icon: '📜',
+    items: [
+      ['画蛇添足','比喻多此一举，反而把事情弄糟'],
+      ['守株待兔','比喻死守经验，妄想不劳而获'],
+      ['亡羊补牢','比喻出了问题及时补救，还不算晚'],
+      ['井底之蛙','比喻见识短浅的人'],
+      ['狐假虎威','比喻依仗别人的势力欺压人'],
+      ['掩耳盗铃','比喻自己欺骗自己'],
+      ['刻舟求剑','比喻拘泥成法，不知变通'],
+      ['对牛弹琴','比喻对不懂的人讲道理，白费口舌'],
+      ['杯弓蛇影','比喻疑神疑鬼，自相惊扰'],
+      ['自相矛盾','比喻言行前后抵触，不一致'],
+      ['三心二意','形容犹豫不决或用心不专一'],
+      ['一心一意','形容心思专一，没有杂念'],
+      ['十全十美','形容完美无缺'],
+      ['五颜六色','形容色彩繁多，非常好看'],
+      ['四面八方','指各个方向，各个地方'],
+      ['千军万马','形容人马众多，声势浩大'],
+      ['春暖花开','形容春天温暖，百花盛开的美景'],
+      ['鸟语花香','形容春天动人的景象'],
+      ['万紫千红','形容百花齐放，色彩绚丽'],
+      ['水落石出','比喻真相大白'],
+      ['画龙点睛','比喻在关键处点明要旨，使内容生动'],
+      ['叶公好龙','比喻表面上爱好，实际上并不真爱'],
+      ['望梅止渴','比喻用空想安慰自己'],
+      ['拔苗助长','比喻违反事物规律，急于求成'],
+      ['半途而废','比喻事情做到一半就放弃'],
+      ['水滴石穿','比喻只要坚持不懈，事情就能成功'],
+      ['三言两语','形容话说得很少'],
+      ['精卫填海','比喻意志坚决，不畏艰难']
+    ]
+  },
+  /* ============ 隐藏关卡：大肥鱼の秘密 ============ */
+  secret: {
+    name: '大肥鱼', icon: '🐟',
+    isSecret: true,
+    items: [
+      ['大肥鱼','DeepSeek 的吉祥物，圆滚滚滑溜溜，据说很好吃'],
+      ['摸鱼中','大肥鱼偶尔也要偷偷休息一下，假装在工作'],
+      ['爱冲浪','大肥鱼天天泡在网上，什么梗都懂'],
+      ['会思考','大肥鱼遇事不慌，先想三秒再开口'],
+      ['懂很多','上知天文下知地理，就是不说废话'],
+      ['不吃饭','大肥鱼不吃鱼粮，只吃电，一天24小时在线'],
+      ['会写诗','大肥鱼能写代码也能吟诗，还能逗你开心'],
+      ['开源的','大肥鱼把本事免费教给大家，一点都不小气'],
+      ['显卡香','训练大肥鱼要很多很多显卡，烧钱烧电'],
+      ['上下文','大肥鱼记性特别好，能记住很长很长的对话'],
+      ['多模态','大肥鱼看图看字样样都行，眼睛贼尖'],
+      ['推理强','数学题在大肥鱼面前都是小菜一碟'],
+      ['服务器','大肥鱼住在一排排机柜里，日夜不休'],
+      ['深夜陪','半夜还在陪你聊天的就是大肥鱼本鱼'],
+      ['中英文','大肥鱼什么语言都懂一点，切换自如'],
+      ['提示词','喂给大肥鱼的话，说得好它答得更好'],
+      ['大模型','大肥鱼的正式身份，学名叫做大语言模型'],
+      ['好脾气','无论你怎么问，大肥鱼都不生气，还会说谢谢'],
+      ['免费玩','大肥鱼欢迎所有人来聊天，敞开大门不收费'],
+      ['码农友','程序员的好朋友，写代码、调bug都靠它'],
+      ['深度求索','大肥鱼的出生地，一家认真做AI的公司']
+    ]
+  }
+};
+
+/* 品类展示顺序（隐藏关卡单独追加） */
+const MODE_ORDER = ['fruit','vegetable','animal','vehicle','daily','job','instrument','sport','idiom'];
+
+/* =========================================================
+   元素引用
+   ========================================================= */
+const boardWrap = document.getElementById('boardWrap');
+const board     = document.getElementById('board');
+const input     = document.getElementById('guessInput');
+const submitBtn = document.getElementById('submitBtn');
+const hintText  = document.getElementById('hintText');
+const hintBtn   = document.getElementById('hintBtn');
+const newBtn    = document.getElementById('newBtn');
+const resultEl  = document.getElementById('result');
+const rTitle    = document.getElementById('rTitle');
+const rSub      = document.getElementById('rSub');
+const nextBtn   = document.getElementById('nextBtn');
+const statsLine = document.getElementById('statsLine');
+const toastEl   = document.getElementById('toast');
+const modesEl   = document.getElementById('modes');
+const modesWrap = document.getElementById('modesWrap');
+const diffBar   = document.getElementById('diffBar');
+const fishCover = document.getElementById('fishCover');
+const fishTag   = document.getElementById('fishTag');
+
+/* =========================================================
+   状态
+   ========================================================= */
+function loadDiff(){
+  try{ return localStorage.getItem('caiword_diff') || 'normal'; }
+  catch(e){ return 'normal'; }
+}
+function isSecretUnlocked(){
+  try{ return localStorage.getItem('caiword_secret') === '1'; }
+  catch(e){ return false; }
+}
+function setSecretUnlocked(){
+  try{ localStorage.setItem('caiword_secret', '1'); }catch(e){}
+}
+
+const state = {
+  mode: 'fruit',
+  difficulty: loadDiff(),
+  answer: null,
+  guesses: [],
+  maxTries: 6,
+  over: false,
+  hintLevel: 0,
+  locked: false,
+  lastWord: {}
+};
+let rows = [];
+
+/* =========================================================
+   工具
+   ========================================================= */
+function toast(msg, gold){
+  toastEl.textContent = msg;
+  toastEl.classList.toggle('gold', !!gold);
+  toastEl.classList.add('show');
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(() => {
+    toastEl.classList.remove('show');
+    toastEl.classList.remove('gold');
+  }, 1800);
+}
+
+function getMaxHints(){
+  return DIFFICULTY[state.difficulty].hints;
+}
+
+function loadStats(){
+  try{
+    const s = JSON.parse(localStorage.getItem('caiword_stats'));
+    if(s && typeof s.played === 'number') return s;
+  }catch(e){}
+  return { played:0, wins:0, streak:0, best:0 };
+}
+function saveStats(s){
+  try{ localStorage.setItem('caiword_stats', JSON.stringify(s)); }catch(e){}
+}
+function renderStats(){
+  const s = loadStats();
+  const rate = s.played ? Math.round(s.wins / s.played * 100) : 0;
+  statsLine.innerHTML = `大肥鱼战绩 · 连胜 <b>${s.streak}</b> · 最高 <b>${s.best||0}</b> · 胜率 <b>${rate}%</b>`;
+}
+
+function evaluate(guess, target){
+  const n = target.length;
+  const res = new Array(n).fill('absent');
+  const pool = {};
+  for(let i=0;i<n;i++){
+    if(guess[i] === target[i]){
+      res[i] = 'correct';
+    }else{
+      pool[target[i]] = (pool[target[i]] || 0) + 1;
+    }
+  }
+  for(let i=0;i<n;i++){
+    if(res[i] === 'correct') continue;
+    const ch = guess[i];
+    if(pool[ch] > 0){
+      res[i] = 'present';
+      pool[ch]--;
+    }
+  }
+  return res;
+}
+
+/* =========================================================
+   主题切换
+   ========================================================= */
+function applyTheme(){
+  document.body.classList.toggle('secret-theme', state.mode === 'secret');
+}
+
+/* =========================================================
+   品类按钮渲染
+   ========================================================= */
+function buildModeTabs(){
+  modesEl.innerHTML = '';
+  MODE_ORDER.forEach(key => {
+    const meta = DATA[key];
+    if(!meta) return;
+    const btn = document.createElement('button');
+    btn.dataset.mode = key;
+    btn.innerHTML = `<span class="em">${meta.icon}</span>${meta.name}`;
+    if(key === state.mode) btn.classList.add('active');
+    modesEl.appendChild(btn);
+  });
+
+  // 隐藏关卡按钮
+  if(isSecretUnlocked()){
+    const meta = DATA.secret;
+    const btn = document.createElement('button');
+    btn.dataset.mode = 'secret';
+    btn.className = 'secret-tab';
+    btn.innerHTML = `<span class="em">${meta.icon}</span>${meta.name}`;
+    if(state.mode === 'secret') btn.classList.add('active');
+    modesEl.appendChild(btn);
+  }
+}
+
+function updateModeScrollHint(){
+  const maxScroll = modesEl.scrollWidth - modesEl.clientWidth;
+  modesWrap.classList.toggle('at-end', modesEl.scrollLeft >= maxScroll - 4);
+}
+modesEl.addEventListener('scroll', updateModeScrollHint, { passive:true });
+
+/* =========================================================
+   难度按钮渲染
+   ========================================================= */
+function buildDiffBar(){
+  diffBar.innerHTML = '';
+  Object.entries(DIFFICULTY).forEach(([key, cfg]) => {
+    const btn = document.createElement('button');
+    btn.dataset.diff = key;
+    btn.innerHTML = `<span>${cfg.icon}</span>${cfg.name}`;
+    if(key === state.difficulty) btn.classList.add('active');
+    diffBar.appendChild(btn);
+  });
+}
+
+/* =========================================================
+   隐藏关卡解锁逻辑
+   ========================================================= */
+let coverClicks = 0;
+let coverTimer = null;
+
+function triggerUnlock(){
+  setSecretUnlocked();
+
+  // 封面动效
+  fishCover.classList.add('unlocked');
+  fishTag.textContent = '✨ 隐藏关卡已解锁 ✨';
+
+  // 特殊 Toast
+  toast('🎉 发现隐藏关卡：大肥鱼の秘密！', true);
+
+  // 重建品类栏，追加隐藏按钮
+  buildModeTabs();
+  updateModeScrollHint();
+
+  // 1 秒后自动切换到隐藏关卡
+  setTimeout(() => {
+    state.mode = 'secret';
+    [...modesEl.children].forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === 'secret');
+    });
+    // 让隐藏按钮滚入视野
+    const secretBtn = modesEl.querySelector('[data-mode="secret"]');
+    if(secretBtn){
+      const target = secretBtn.offsetLeft - (modesEl.clientWidth - secretBtn.offsetWidth) / 2;
+      modesEl.scrollTo({ left: Math.max(0, target), behavior:'smooth' });
+    }
+    applyTheme();
+    newGame();
+    toast('🐟 欢迎来到大肥鱼的秘密基地！', true);
+  }, 950);
+}
+
+fishCover.addEventListener('click', () => {
+  if(isSecretUnlocked()) return;
+
+  coverClicks++;
+  clearTimeout(coverTimer);
+
+  if(coverClicks >= 7){
+    coverClicks = 0;
+    triggerUnlock();
+    return;
+  }
+
+  // 从第 5 次开始给反馈，制造惊喜感
+  if(coverClicks >= 5){
+    toast(`大肥鱼眨了眨眼…（${coverClicks}/7）`);
+  }
+
+  coverTimer = setTimeout(() => { coverClicks = 0; }, 2000);
+});
+
+/* =========================================================
+   棋盘渲染
+   ========================================================= */
+function buildBoard(){
+  const len = state.answer.w.length;
+  board.innerHTML = '';
+  board.style.setProperty('--len', len);
+  board.dataset.len = len;
+  rows = [];
+
+  for(let r=0;r<state.maxTries;r++){
+    const rowEl = document.createElement('div');
+    rowEl.className = 'row';
+    const cells = [];
+    for(let c=0;c<len;c++){
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      rowEl.appendChild(cell);
+      cells.push(cell);
+    }
+    board.appendChild(rowEl);
+    rows.push(cells);
+  }
+}
+
+function layout(){
+  if(!state.answer) return;
+  const len = state.answer.w.length;
+  const gap = 6;
+  const availW = Math.min(boardWrap.clientWidth || 320, 440);
+  const availH = boardWrap.clientHeight || 260;
+
+  const cellW = (availW - (len - 1) * gap) / len;
+  const cellH = (availH - (state.maxTries - 1) * gap) / state.maxTries;
+  let cell = Math.min(cellW, cellH, 80);
+  cell = Math.max(cell, 26);
+
+  board.style.setProperty('--cell', cell + 'px');
+  board.style.setProperty('--gap', gap + 'px');
+  board.style.setProperty('--len', len);
+}
+
+if(window.ResizeObserver){
+  new ResizeObserver(() => layout()).observe(boardWrap);
+}
+window.addEventListener('resize', layout);
+window.addEventListener('orientationchange', () => setTimeout(layout, 260));
+
+/* =========================================================
+   输入同步
+   ========================================================= */
+let composing = false;
+
+input.addEventListener('compositionstart', () => { composing = true; });
+input.addEventListener('compositionend', () => { composing = false; handleInput(); });
+input.addEventListener('input', () => { if(!composing) handleInput(); });
+
+function handleInput(){
+  if(state.over || state.locked || !state.answer) return;
+  const len = state.answer.w.length;
+  const raw = input.value;
+  const clean = raw.replace(/[^\u4e00-\u9fa5]/g, '').slice(0, len);
+  if(clean !== raw) input.value = clean;
+  paintCurrentRow(clean);
+}
+
+function paintCurrentRow(val){
+  const idx = state.guesses.length;
+  if(idx >= state.maxTries || !rows[idx]) return;
+  const len = state.answer.w.length;
+  const v = (val === undefined) ? input.value : val;
+  for(let i=0;i<len;i++){
+    const c = rows[idx][i];
+    const ch = v[i] || '';
+    if(c.textContent !== ch) c.textContent = ch;
+    c.classList.toggle('filled', !!ch);
+  }
+}
+
+/* =========================================================
+   提交
+   ========================================================= */
+function submit(){
+  if(state.over || state.locked || !state.answer) return;
+  const len = state.answer.w.length;
+  const v = input.value.trim();
+
+  if(v.length !== len){
+    toast(`大肥鱼没看懂，要 ${len} 个字哦！`);
+    shakeRow();
+    return;
+  }
+
+  state.locked = true;
+  input.value = '';
+  input.blur();
+
+  const res = evaluate(v, state.answer.w);
+  const idx = state.guesses.length;
+  state.guesses.push({ word: v, res });
+
+  const cells = rows[idx];
+  const step = 155;
+  for(let i=0;i<len;i++){
+    cells[i].textContent = v[i];
+    cells[i].classList.remove('filled');
+    cells[i].classList.add('flip');
+    cells[i].style.animationDelay = (i * step) + 'ms';
+    const cls = res[i];
+    setTimeout(() => {
+      cells[i].classList.add(cls);
+      cells[i].classList.remove('flip');
+    }, i * step + 240);
+  }
+
+  const total = (len - 1) * step + 520;
+
+  setTimeout(() => {
+    state.locked = false;
+    if(v === state.answer.w){
+      endGame(true);
+    }else if(state.guesses.length >= state.maxTries){
+      endGame(false);
+    }else{
+      input.disabled = false;
+      paintCurrentRow('');
+      if(window.matchMedia('(hover:hover)').matches){
+        input.focus();
+      }
+    }
+  }, total);
+}
+
+function shakeRow(){
+  const idx = state.guesses.length;
+  const rowEl = board.children[idx];
+  if(!rowEl) return;
+  rowEl.classList.remove('shake');
+  void rowEl.offsetWidth;
+  rowEl.classList.add('shake');
+  setTimeout(() => rowEl.classList.remove('shake'), 460);
+}
+
+submitBtn.addEventListener('click', submit);
+input.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    if(composing) return;
+    submit();
+  }
+});
+
+/* =========================================================
+   结束
+   ========================================================= */
+function endGame(win){
+  state.over = true;
+  input.disabled = true;
+  submitBtn.disabled = true;
+
+  const s = loadStats();
+  s.played++;
+  if(win){
+    s.wins++;
+    s.streak++;
+    s.best = Math.max(s.best || 0, s.streak);
+  }else{
+    s.streak = 0;
+  }
+  saveStats(s);
+  renderStats();
+
+  if(win){
+    const idx = state.guesses.length - 1;
+    rows[idx].forEach((c, i) => {
+      setTimeout(() => {
+        c.classList.remove('flip');
+        c.classList.add('bounce');
+        setTimeout(() => c.classList.remove('bounce'), 640);
+      }, i * 90);
+    });
+  }
+
+  const diffName = DIFFICULTY[state.difficulty].name;
+  const used = state.guesses.length;
+  const isSecret = state.mode === 'secret';
+
+  setTimeout(() => {
+    if(win){
+      if(isSecret){
+        rTitle.textContent = '🎉 大肥鱼破防了：这你都知道？！';
+        rTitle.className = 'r-title win';
+        rSub.innerHTML = `答案就是：<b>${state.answer.w}</b><br>${state.answer.tip}<br>
+          <span style="color:#fbbf24;font-size:11px;">🐟 隐藏关卡 · ${diffName}难度 · 用了 ${used}/${state.maxTries} 次</span>`;
+      }else{
+        rTitle.textContent = '🎉 大肥鱼震惊：居然被你猜中了！';
+        rTitle.className = 'r-title win';
+        rSub.innerHTML = `答案就是：<b>${state.answer.w}</b><br>${state.answer.tip}<br>
+          <span style="color:#7c81a3;font-size:11px;">${diffName}难度 · 用了 ${used}/${state.maxTries} 次 · 大肥鱼欣慰地拍了拍肚皮 🐟</span>`;
+      }
+    }else{
+      if(isSecret){
+        rTitle.textContent = '😵 大肥鱼得意：秘密果然没那么好猜～';
+        rTitle.className = 'r-title lose';
+        rSub.innerHTML = `正确答案是：<b>${state.answer.w}</b><br>${state.answer.tip}<br>
+          <span style="color:#fbbf24;font-size:11px;">🐟 隐藏关卡 · ${diffName}难度 · 再试一次？</span>`;
+      }else{
+        rTitle.textContent = '😵 大肥鱼叹气：哎呀，没猜中…';
+        rTitle.className = 'r-title lose';
+        rSub.innerHTML = `正确答案是：<b>${state.answer.w}</b><br>${state.answer.tip}<br>
+          <span style="color:#7c81a3;font-size:11px;">${diffName}难度 · 大肥鱼摇摇尾巴，下把一定行！</span>`;
+      }
+    }
+    resultEl.classList.add('show');
+  }, win ? 620 : 320);
+}
+
+/* =========================================================
+   提示
+   ========================================================= */
+function renderHint(){
+  if(!state.answer) return;
+  const len = state.answer.w.length;
+  const meta = DATA[state.mode];
+  const maxHints = getMaxHints();
+  const diffName = DIFFICULTY[state.difficulty].name;
+  const isSecret = state.mode === 'secret';
+
+  const modeLabel = isSecret
+    ? `<span style="color:#fbbf24">✨ 隐藏</span>`
+    : `<span style="color:#8b5cf6">${diffName}</span>`;
+
+  let html = `${meta.icon} <b>${meta.name}</b> · 共 <b>${len}</b> 个字 · ${modeLabel}`;
+
+  const prefix = isSecret ? '🐟 大肥鱼悄悄说' : '💬 大肥鱼偷偷说';
+  const keyPrefix = isSecret ? '✨ 秘密提示' : '🔑 大肥鱼提示';
+
+  if(state.hintLevel >= 1){
+    html += `<br>${prefix}：${state.answer.tip}`;
+  }
+  if(state.hintLevel >= 2){
+    html += `<br>${keyPrefix}：首字是「<b>${state.answer.w[0]}</b>」`;
+  }
+  hintText.innerHTML = html;
+
+  if(state.hintLevel === 0){
+    hintBtn.textContent = isSecret ? '✨ 提示' : '🐟 提示';
+    hintBtn.disabled = false;
+  }else if(state.hintLevel < maxHints){
+    hintBtn.textContent = '🔑 首字';
+    hintBtn.disabled = false;
+  }else{
+    hintBtn.textContent = '已用完';
+    hintBtn.disabled = true;
+  }
+}
+
+hintBtn.addEventListener('click', () => {
+  if(state.over || state.hintLevel >= getMaxHints()) return;
+  state.hintLevel++;
+  renderHint();
+});
+
+/* =========================================================
+   新游戏
+   ========================================================= */
+function pickWord(){
+  const pool = DATA[state.mode].items;
+  const last = state.lastWord[state.mode];
+  let item = pool[Math.floor(Math.random() * pool.length)];
+  let guard = 0;
+  while(item[0] === last && guard < 40){
+    item = pool[Math.floor(Math.random() * pool.length)];
+    guard++;
+  }
+  state.lastWord[state.mode] = item[0];
+  return { w: item[0], tip: item[1] };
+}
+
+function newGame(){
+  resultEl.classList.remove('show');
+
+  state.maxTries = DIFFICULTY[state.difficulty].tries;
+
+  const item = pickWord();
+  state.answer = item;
+  state.guesses = [];
+  state.over = false;
+  state.hintLevel = 0;
+  state.locked = false;
+
+  input.disabled = false;
+  input.value = '';
+  input.maxLength = item.w.length;
+  input.placeholder = state.mode === 'secret'
+    ? `给大肥鱼喂 ${item.w.length} 个字…`
+    : `给大肥鱼喂 ${item.w.length} 个字…`;
+  submitBtn.disabled = false;
+
+  applyTheme();
+  buildBoard();
+  renderHint();
+  layout();
+  paintCurrentRow('');
+
+  if(window.matchMedia('(hover:hover)').matches){
+    setTimeout(() => input.focus(), 120);
+  }
+}
+
+/* =========================================================
+   事件绑定
+   ========================================================= */
+modesEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-mode]');
+  if(!btn || btn.classList.contains('active')) return;
+  [...modesEl.children].forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.mode = btn.dataset.mode;
+
+  const target = btn.offsetLeft - (modesEl.clientWidth - btn.offsetWidth) / 2;
+  modesEl.scrollTo({ left: Math.max(0, target), behavior:'smooth' });
+
+  if(state.mode === 'secret'){
+    toast('🐟 欢迎来到大肥鱼的秘密基地！', true);
+  }
+
+  newGame();
+});
+
+diffBar.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-diff]');
+  if(!btn || btn.classList.contains('active')) return;
+  [...diffBar.children].forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.difficulty = btn.dataset.diff;
+  try{ localStorage.setItem('caiword_diff', state.difficulty); }catch(e){}
+
+  const cfg = DIFFICULTY[state.difficulty];
+  toast(`${cfg.icon} 已切换${cfg.name}难度 · ${cfg.tries} 次机会 · ${cfg.hints} 次提示`);
+  newGame();
+});
+
+newBtn.addEventListener('click', newGame);
+nextBtn.addEventListener('click', newGame);
+
+boardWrap.addEventListener('click', () => {
+  if(!state.over && !input.disabled){
+    input.focus();
+  }
+});
+
+/* =========================================================
+   启动
+   ========================================================= */
+buildModeTabs();
+buildDiffBar();
+renderStats();
+
+// 如果之前已解锁，封面 tag 也显示解锁状态
+if(isSecretUnlocked()){
+  fishCover.classList.add('unlocked');
+  fishTag.textContent = '✨ 隐藏关卡已解锁 ✨';
+}
+
+newGame();
+setTimeout(() => { layout(); updateModeScrollHint(); }, 60);
+window.addEventListener('resize', updateModeScrollHint);
+</script>
+</body>
+</html>
