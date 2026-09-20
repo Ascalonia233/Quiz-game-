@@ -14,7 +14,7 @@
   --line:#4b4d6b;
   --text:#eef2ff;
   --muted:#9aa0b8;
-  --accent:#00aaff; /* DeepSeek 主题蓝 */
+  --accent:#00aaff;
 }
 html,body{height:100%}
 body{
@@ -32,7 +32,6 @@ body{
 }
 input{user-select:text;-webkit-user-select:text}
 
-/* ============ 隐藏关卡主题（青色科技风） ============ */
 body.secret-theme{
   background:#0a1420;
   background-image:radial-gradient(900px 520px at 50% -12%, #002b4d 0%, rgba(10,20,32,0) 70%);
@@ -62,7 +61,6 @@ body.secret-theme .hintbar button{
   color:#ccefff;
 }
 
-/* ---------- 顶部 ---------- */
 .top{
   width:100%;max-width:460px;
   display:flex;align-items:center;justify-content:space-between;
@@ -81,7 +79,6 @@ body.secret-theme .hintbar button{
 }
 .icon-btn:active{transform:scale(.92);background:rgba(255,255,255,.12)}
 
-/* ---------- 大肥鱼封面（修正：图片自适应，文本居中在下方） ---------- */
 .fish-cover{
   margin-top:6px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -96,7 +93,7 @@ body.secret-theme .hintbar button{
   border-radius:14px;
   border:1px solid rgba(0,170,255,.25);
   box-shadow:0 6px 20px rgba(0,0,0,.35);
-  object-fit:contain; /* 完整显示，不裁剪 */
+  object-fit:contain;
   display:block;
   pointer-events:none;
   -webkit-user-drag:none;
@@ -128,7 +125,6 @@ body.secret-theme .fish-cover .fish-tag{
   50%{box-shadow:0 0 0 6px rgba(0,170,255,0)}
 }
 
-/* ---------- 品类切换 ---------- */
 .modes-wrap{
   position:relative;
   width:100%;max-width:460px;
@@ -178,7 +174,6 @@ body.secret-theme .modes-wrap::after{
   box-shadow:0 4px 16px rgba(0,170,255,.5) !important;
 }
 
-/* ---------- 难度选择 ---------- */
 .diff-bar{
   width:100%;max-width:460px;
   margin-top:6px;
@@ -213,7 +208,6 @@ body.secret-theme .modes-wrap::after{
   box-shadow:inset 0 0 0 1px rgba(239,68,68,.45);
 }
 
-/* ---------- 提示栏 ---------- */
 .hintbar{
   width:100%;max-width:460px;margin-top:7px;
   display:flex;align-items:center;gap:8px;
@@ -223,7 +217,7 @@ body.secret-theme .modes-wrap::after{
   min-height:44px;
 }
 .hintbar .txt{
-  flex:1;font-size:12px;line-height:1.45;color:#c7cbe0;min-width:0;
+  flex:1;font-size:12px;line-height:1.5;color:#c7cbe0;min-width:0;
 }
 .hintbar .txt b{color:#fff}
 .hintbar button{
@@ -234,7 +228,6 @@ body.secret-theme .modes-wrap::after{
 .hintbar button:active{transform:scale(.94)}
 .hintbar button:disabled{opacity:.35;cursor:default}
 
-/* ---------- 棋盘 ---------- */
 .board-wrap{
   flex:1;min-height:0;width:100%;
   display:flex;align-items:center;justify-content:center;
@@ -284,7 +277,6 @@ body.secret-theme .modes-wrap::after{
 }
 .row.shake{animation:shake .42s ease}
 
-/* ---------- 输入区 ---------- */
 .inputbar{
   width:100%;max-width:460px;
   display:flex;gap:8px;
@@ -315,7 +307,6 @@ body.secret-theme .modes-wrap::after{
 .inputbar button:active{transform:scale(.95)}
 .inputbar button:disabled{opacity:.4;box-shadow:none;cursor:default;transform:none}
 
-/* ---------- 底部 ---------- */
 .footer{
   width:100%;max-width:460px;
   margin-top:8px;
@@ -333,7 +324,6 @@ body.secret-theme .modes-wrap::after{
 .stats-line{font-size:10px;color:#666b8a}
 .stats-line b{color:#c7cbe0}
 
-/* ---------- 结果弹层 ---------- */
 .result{
   position:fixed;left:50%;bottom:0;z-index:60;
   transform:translate(-50%,115%);
@@ -366,7 +356,6 @@ body.secret-theme .result{
 }
 .result button:active{transform:scale(.97)}
 
-/* ---------- Toast ---------- */
 .toast{
   position:fixed;left:50%;top:14%;
   transform:translate(-50%,-14px);
@@ -403,7 +392,6 @@ body.secret-theme .result{
   <button class="icon-btn" id="newBtn" title="换一题">🔄</button>
 </header>
 
-<!-- 大肥鱼封面（点击7次解锁隐藏关卡） -->
 <div class="fish-cover" id="fishCover">
   <img src="cover.png" alt="Deepseek大肥鱼" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
   <div style="display:none;width:100%;height:110px;align-items:center;justify-content:center;font-size:32px;color:#00aaff;">🐟❓</div>
@@ -414,12 +402,11 @@ body.secret-theme .result{
   <nav class="modes" id="modes"></nav>
 </div>
 
-<!-- 难度选择 -->
 <div class="diff-bar" id="diffBar"></div>
 
 <div class="hintbar">
   <span class="txt" id="hintText"></span>
-  <button id="hintBtn">🐟 提示</button>
+  <button id="hintBtn">🔑 提示</button>
 </div>
 
 <div class="board-wrap" id="boardWrap">
@@ -451,71 +438,71 @@ body.secret-theme .result{
 
 <script>
 /* =========================================================
-   难度配置（困难模式：3次机会 / 1次提示）
+   难度配置（困难模式：3次机会 / 0次提示）
    ========================================================= */
 const DIFFICULTY = {
   easy:   { name:'简单', tries:8, hints:2, icon:'🌱' },
   normal: { name:'普通', tries:5, hints:1, icon:'⚖️' },
-  hard:   { name:'困难', tries:3, hints:1, icon:'🔥' }
+  hard:   { name:'困难', tries:3, hints:0, icon:'🔥' }
 };
 
 /* =========================================================
-   词库（提示词已极致升维，难度翻倍）
+   词库（提示词已极致抽象化，难度翻倍）
    ========================================================= */
 const DATA = {
   fruit: {
     name: '水果', icon: '🍎',
     items: [
-      ['苹果','砸醒过牛顿，也毒倒过白雪公主'],
-      ['香蕉','穿黄色外套，喜欢弯腰，猴子见到我就笑'],
-      ['葡萄','喜欢和兄弟们抱团，酿酒师看到我两眼放光'],
-      ['西瓜','夏天里最大的胖子，肚子里面藏黑豆'],
-      ['草莓','戴着小绿帽，脸上长雀斑，甜到心坎里'],
-      ['芒果','来自热带，内心金黄，带个硬核'],
-      ['桃子','脸上有绒毛，害羞就脸红，猴子爱偷'],
-      ['橘子','穿橙外套，脱掉后里面住着一群小兄弟'],
-      ['柠檬','黄色小心脏，酸得你皱眉，但有人爱泡它'],
-      ['菠萝','头顶戴绿帽，浑身带刺，扎手但很甜'],
-      ['樱桃','小红宝石带尾巴，蛋糕上的常客'],
-      ['石榴','外表不起眼，切开全是红宝石，数不清'],
-      ['荔枝','外壳糙，内心嫩，一骑红尘妃子笑'],
-      ['榴莲','气味能熏跑一屋子人，爱它的人爱到疯狂'],
-      ['火龙果','外表像火焰，切开像星空，黑芝麻藏在里面'],
-      ['猕猴桃','毛茸茸的外衣，绿色的心，切开来像小太阳'],
-      ['柚子','个头大皮厚，果肉微苦，中秋常见'],
-      ['椰子','硬壳里装着清甜的水，热带来的流浪汉'],
-      ['蓝莓','蓝色小圆球，酸甜可口，蛋糕上的蓝眼睛'],
-      ['哈密瓜','穿网纹外套，来自西域，甜得让人咧嘴'],
+      ['苹果','让牛顿顿悟，让白雪公主沉睡'],
+      ['香蕉','黄色潜水艇，运动员的最爱'],
+      ['葡萄','手拉手的紫珠子，酿酒师的宝贝'],
+      ['西瓜','夏日绿皮大块头，心里藏着黑豆'],
+      ['草莓','戴绿帽的小红脸，蛋糕上的常客'],
+      ['芒果','热带黄金，内心有硬核'],
+      ['桃子','毛茸茸的脸蛋，害羞就脸红'],
+      ['橘子','橙色小灯笼，剥开是一群月牙'],
+      ['柠檬','酸到掉牙，泡水很香'],
+      ['菠萝','头顶绿冠，身披铠甲的水果战士'],
+      ['樱桃','红色小珍珠，带根长尾巴'],
+      ['石榴','外表平凡，内心全是红宝石'],
+      ['荔枝','壳糙肉甜，妃子为它笑'],
+      ['榴莲','水果界的臭豆腐，爱的人疯狂'],
+      ['火龙果','粉红外衣，白肉黑芝麻'],
+      ['猕猴桃','棕色毛衣，绿色内心'],
+      ['柚子','中秋常客，皮厚心微苦'],
+      ['椰子','树上的水瓶，硬壳是盔甲'],
+      ['蓝莓','蓝色小弹珠，蛋糕上的蓝眼睛'],
+      ['哈密瓜','穿网纹外套，西域来的甜心'],
       ['山竹','紫壳白肉像蒜瓣，热带果后'],
-      ['杨梅','紫红小刺球，酸甜，泡酒好喝'],
-      ['枇杷','叶子能入药，咳嗽时想起它'],
-      ['木瓜','常和排骨一起炖，有丰胸传说'],
-      ['柿子','秋天树上挂满橙色小灯笼，软了才甜']
+      ['杨梅','紫红小刺球，泡酒好喝'],
+      ['枇杷','叶子入药，咳嗽时想起它'],
+      ['木瓜','炖汤好搭档，有神奇传说'],
+      ['柿子','秋天挂灯笼，软了才甜']
     ]
   },
   vegetable: {
     name: '蔬菜', icon: '🥬',
     items: [
-      ['白菜','一层一层包裹自己，北方冬天囤一百斤'],
-      ['萝卜','埋在地下，拔出来时带着泥，兔子爱吃'],
-      ['番茄','红色圆球，和鸡蛋是最佳拍档'],
-      ['黄瓜','绿色长条，身上有小刺，拍碎了更入味'],
+      ['白菜','北方冬天囤一百斤，层层包裹自己'],
+      ['萝卜','埋在地下，拔出来时带泥'],
+      ['番茄','鸡蛋的最佳拍档，红色圆球'],
+      ['黄瓜','绿色长条，拍碎更入味'],
       ['茄子','紫色长条，鱼香配它最经典'],
-      ['土豆','土里长出来的，切条炸一炸，全世界都爱'],
-      ['洋葱','切它让你哭，一层一层剥开都是泪'],
-      ['南瓜','万圣节被挖空做成笑脸，马车也是它变的'],
-      ['辣椒','小个子大脾气，吃一口让你找水喝'],
-      ['菠菜','吃了它，大力水手就变强'],
-      ['芹菜','长长的绿色，有特殊香味，纤维有点多'],
-      ['冬瓜','个头很大，表面一层白霜，夏天煲汤'],
-      ['苦瓜','满脸疙瘩，味道苦，但夏天清热降火'],
-      ['豆芽','豆子泡水后的孩子，白嫩嫩的'],
-      ['蘑菇','撑着小伞在阴凉处生长，不是植物'],
-      ['莲藕','淤泥里长大，切开全是孔，出淤泥而不染'],
-      ['玉米','颗粒排成排，裹着绿外套，胡子露出来'],
-      ['韭菜','细长绿叶，割了还会长，包饺子很香'],
-      ['生菜','叶子翠绿，汉堡里常夹它'],
-      ['西兰花','绿色小树，一朵朵，健身餐常客']
+      ['土豆','土里长出来，切条炸一炸'],
+      ['洋葱','切它让你哭，剥开都是泪'],
+      ['南瓜','万圣节被挖空做笑脸'],
+      ['辣椒','小个子大脾气，吃一口找水喝'],
+      ['菠菜','大力水手的秘密武器'],
+      ['芹菜','长条绿色，特殊香味'],
+      ['冬瓜','白霜覆盖的大块头，夏天煲汤'],
+      ['苦瓜','满脸疙瘩，味道苦'],
+      ['豆芽','豆子泡水后的孩子'],
+      ['蘑菇','阴凉处的小伞，不是植物'],
+      ['莲藕','淤泥里长大，切开全是孔'],
+      ['玉米','颗粒排成排，胡子露出来'],
+      ['韭菜','细长绿叶，割了还会长'],
+      ['生菜','汉堡里的夹心，翠绿叶子'],
+      ['西兰花','绿色小树，健身餐常客']
     ]
   },
   animal: {
@@ -528,7 +515,7 @@ const DATA = {
       ['猴子','会爬树，机灵，人类近亲'],
       ['长颈鹿','脖子长，能吃到最高的树叶'],
       ['狮子','草原之王，雄性有鬃毛'],
-      ['企鹅','住最冷的地方，穿燕尾服走路摇摇摆摆'],
+      ['企鹅','住最冷的地方，穿燕尾服'],
       ['蝴蝶','会飞的花，翅膀五颜六色'],
       ['乌龟','背着房子走，速度很慢'],
       ['鲸鱼','海里最大的，但不是鱼'],
@@ -704,42 +691,37 @@ const DATA = {
       ['精卫填海','意志坚决，不畏艰难']
     ]
   },
-  /* ============ 隐藏关卡：大肥鱼の秘密 ============ */
   secret: {
     name: '大肥鱼', icon: '🐟',
     isSecret: true,
     items: [
-      ['大肥鱼','DeepSeek 的吉祥物，圆滚滚滑溜溜，据说很好吃'],
-      ['摸鱼中','大肥鱼偶尔也要偷偷休息一下，假装在工作'],
+      ['大肥鱼','DeepSeek 的吉祥物，圆滚滚滑溜溜'],
+      ['摸鱼中','大肥鱼偶尔也要偷偷休息'],
       ['爱冲浪','大肥鱼天天泡在网上，什么梗都懂'],
-      ['会思考','大肥鱼遇事不慌，先想三秒再开口'],
+      ['会思考','大肥鱼遇事不慌，先想三秒'],
       ['懂很多','上知天文下知地理，就是不说废话'],
-      ['不吃饭','大肥鱼不吃鱼粮，只吃电，一天24小时在线'],
-      ['会写诗','大肥鱼能写代码也能吟诗，还能逗你开心'],
-      ['开源的','大肥鱼把本事免费教给大家，一点都不小气'],
-      ['显卡香','训练大肥鱼要很多很多显卡，烧钱烧电'],
-      ['上下文','大肥鱼记性特别好，能记住很长很长的对话'],
-      ['多模态','大肥鱼看图看字样样都行，眼睛贼尖'],
-      ['推理强','数学题在大肥鱼面前都是小菜一碟'],
-      ['服务器','大肥鱼住在一排排机柜里，日夜不休'],
-      ['深夜陪','半夜还在陪你聊天的就是大肥鱼本鱼'],
-      ['中英文','大肥鱼什么语言都懂一点，切换自如'],
-      ['提示词','喂给大肥鱼的话，说得好它答得更好'],
-      ['大模型','大肥鱼的正式身份，学名叫做大语言模型'],
-      ['好脾气','无论你怎么问，大肥鱼都不生气，还会说谢谢'],
-      ['免费玩','大肥鱼欢迎所有人来聊天，敞开大门不收费'],
-      ['码农友','程序员的好朋友，写代码、调bug都靠它'],
-      ['深度求索','大肥鱼的出生地，一家认真做AI的公司']
+      ['不吃饭','只吃电，一天24小时在线'],
+      ['会写诗','能写代码也能吟诗'],
+      ['开源的','把本事免费教给大家'],
+      ['显卡香','训练要很多很多显卡'],
+      ['上下文','记性特别好，能记住很长的对话'],
+      ['多模态','看图看字样样都行'],
+      ['推理强','数学题都是小菜一碟'],
+      ['服务器','住在一排排机柜里'],
+      ['深夜陪','半夜还在陪你聊天'],
+      ['中英文','什么语言都懂一点'],
+      ['提示词','喂给大肥鱼的话'],
+      ['大模型','大肥鱼的正式身份'],
+      ['好脾气','怎么问都不生气'],
+      ['免费玩','欢迎所有人来聊天'],
+      ['码农友','程序员的好朋友'],
+      ['深度求索','大肥鱼的出生地']
     ]
   }
 };
 
-/* 品类展示顺序（隐藏关卡单独追加） */
 const MODE_ORDER = ['fruit','vegetable','animal','vehicle','daily','job','instrument','sport','idiom'];
 
-/* =========================================================
-   元素引用
-   ========================================================= */
 const boardWrap = document.getElementById('boardWrap');
 const board     = document.getElementById('board');
 const input     = document.getElementById('guessInput');
@@ -759,9 +741,6 @@ const diffBar   = document.getElementById('diffBar');
 const fishCover = document.getElementById('fishCover');
 const fishTag   = document.getElementById('fishTag');
 
-/* =========================================================
-   状态
-   ========================================================= */
 function loadDiff(){
   try{ return localStorage.getItem('caiword_diff') || 'normal'; }
   catch(e){ return 'normal'; }
@@ -787,9 +766,6 @@ const state = {
 };
 let rows = [];
 
-/* =========================================================
-   工具
-   ========================================================= */
 function toast(msg, gold){
   toastEl.textContent = msg;
   toastEl.classList.toggle('gold', !!gold);
@@ -843,16 +819,10 @@ function evaluate(guess, target){
   return res;
 }
 
-/* =========================================================
-   主题切换
-   ========================================================= */
 function applyTheme(){
   document.body.classList.toggle('secret-theme', state.mode === 'secret');
 }
 
-/* =========================================================
-   品类按钮渲染
-   ========================================================= */
 function buildModeTabs(){
   modesEl.innerHTML = '';
   MODE_ORDER.forEach(key => {
@@ -882,9 +852,6 @@ function updateModeScrollHint(){
 }
 modesEl.addEventListener('scroll', updateModeScrollHint, { passive:true });
 
-/* =========================================================
-   难度按钮渲染
-   ========================================================= */
 function buildDiffBar(){
   diffBar.innerHTML = '';
   Object.entries(DIFFICULTY).forEach(([key, cfg]) => {
@@ -896,20 +863,14 @@ function buildDiffBar(){
   });
 }
 
-/* =========================================================
-   隐藏关卡解锁逻辑
-   ========================================================= */
 let coverClicks = 0;
 let coverTimer = null;
 
 function triggerUnlock(){
   setSecretUnlocked();
-
   fishCover.classList.add('unlocked');
   fishTag.textContent = '✨ 隐藏关卡已解锁 ✨';
-
   toast('🎉 发现隐藏关卡：大肥鱼の秘密！', true);
-
   buildModeTabs();
   updateModeScrollHint();
 
@@ -931,26 +892,19 @@ function triggerUnlock(){
 
 fishCover.addEventListener('click', () => {
   if(isSecretUnlocked()) return;
-
   coverClicks++;
   clearTimeout(coverTimer);
-
   if(coverClicks >= 7){
     coverClicks = 0;
     triggerUnlock();
     return;
   }
-
   if(coverClicks >= 5){
     toast(`大肥鱼眨了眨眼…（${coverClicks}/7）`);
   }
-
   coverTimer = setTimeout(() => { coverClicks = 0; }, 2000);
 });
 
-/* =========================================================
-   棋盘渲染
-   ========================================================= */
 function buildBoard(){
   const len = state.answer.w.length;
   board.innerHTML = '';
@@ -996,9 +950,6 @@ if(window.ResizeObserver){
 window.addEventListener('resize', layout);
 window.addEventListener('orientationchange', () => setTimeout(layout, 260));
 
-/* =========================================================
-   输入同步
-   ========================================================= */
 let composing = false;
 
 input.addEventListener('compositionstart', () => { composing = true; });
@@ -1027,9 +978,6 @@ function paintCurrentRow(val){
   }
 }
 
-/* =========================================================
-   提交
-   ========================================================= */
 function submit(){
   if(state.over || state.locked || !state.answer) return;
   const len = state.answer.w.length;
@@ -1100,9 +1048,6 @@ input.addEventListener('keydown', (e) => {
   }
 });
 
-/* =========================================================
-   结束
-   ========================================================= */
 function endGame(win){
   state.over = true;
   input.disabled = true;
@@ -1166,7 +1111,7 @@ function endGame(win){
 }
 
 /* =========================================================
-   提示
+   提示：谜语开局自动显示，按钮显示首字
    ========================================================= */
 function renderHint(){
   if(!state.answer) return;
@@ -1180,35 +1125,31 @@ function renderHint(){
     ? `<span style="color:#00d2ff">✨ 隐藏</span>`
     : `<span style="color:#00aaff">${diffName}</span>`;
 
-  let html = `${meta.icon} <b>${meta.name}</b> · 共 <b>${len}</b> 个字 · ${modeLabel}`;
-
-  if(maxHints === 0){
-    hintText.innerHTML = html + `<br><span style="color:#fb7185;font-size:11px;">🔥 困难模式已禁用提示，全靠推理！</span>`;
-    hintBtn.textContent = '无提示';
-    hintBtn.disabled = true;
-    return;
-  }
-
   const prefix = isSecret ? '🐟 大肥鱼悄悄说' : '💬 大肥鱼偷偷说';
-  const keyPrefix = isSecret ? '✨ 秘密提示' : '🔑 大肥鱼提示';
 
+  // 谜语始终显示
+  let html = `${meta.icon} <b>${meta.name}</b> · 共 <b>${len}</b> 个字 · ${modeLabel}`;
+  html += `<br>${prefix}：${state.answer.tip}`;
+
+  // 首字（点击提示后显示）
   if(state.hintLevel >= 1){
-    html += `<br>${prefix}：${state.answer.tip}`;
+    html += `<br>🔑 首字是「<b>${state.answer.w[0]}</b>」`;
   }
-  if(state.hintLevel >= 2){
-    html += `<br>${keyPrefix}：首字是「<b>${state.answer.w[0]}</b>」`;
+  // 第二字（简单模式专属）
+  if(state.hintLevel >= 2 && len >= 2){
+    html += `<br>🔑 第二个字是「<b>${state.answer.w[1]}</b>」`;
   }
   hintText.innerHTML = html;
 
-  if(state.hintLevel === 0){
-    hintBtn.textContent = isSecret ? '✨ 提示' : '🐟 提示';
-    hintBtn.disabled = false;
-  }else if(state.hintLevel < maxHints){
-    hintBtn.textContent = '🔑 首字';
-    hintBtn.disabled = false;
-  }else{
+  if(maxHints === 0){
+    hintBtn.textContent = '无提示';
+    hintBtn.disabled = true;
+  }else if(state.hintLevel >= maxHints){
     hintBtn.textContent = '已用完';
     hintBtn.disabled = true;
+  }else{
+    hintBtn.textContent = '🔑 首字';
+    hintBtn.disabled = false;
   }
 }
 
@@ -1218,9 +1159,6 @@ hintBtn.addEventListener('click', () => {
   renderHint();
 });
 
-/* =========================================================
-   新游戏
-   ========================================================= */
 function pickWord(){
   const pool = DATA[state.mode].items;
   const last = state.lastWord[state.mode];
@@ -1236,7 +1174,6 @@ function pickWord(){
 
 function newGame(){
   resultEl.classList.remove('show');
-
   state.maxTries = DIFFICULTY[state.difficulty].tries;
 
   const item = pickWord();
@@ -1249,14 +1186,12 @@ function newGame(){
   input.disabled = false;
   input.value = '';
   input.maxLength = item.w.length;
-  input.placeholder = state.mode === 'secret'
-    ? `给大肥鱼喂 ${item.w.length} 个字…`
-    : `给大肥鱼喂 ${item.w.length} 个字…`;
+  input.placeholder = `给大肥鱼喂 ${item.w.length} 个字…`;
   submitBtn.disabled = false;
 
   applyTheme();
   buildBoard();
-  renderHint();
+  renderHint();  // 开局自动显示谜语
   layout();
   paintCurrentRow('');
 
@@ -1265,9 +1200,6 @@ function newGame(){
   }
 }
 
-/* =========================================================
-   事件绑定
-   ========================================================= */
 modesEl.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-mode]');
   if(!btn || btn.classList.contains('active')) return;
@@ -1281,7 +1213,6 @@ modesEl.addEventListener('click', (e) => {
   if(state.mode === 'secret'){
     toast('🐟 欢迎来到大肥鱼的秘密基地！', true);
   }
-
   newGame();
 });
 
@@ -1308,9 +1239,6 @@ boardWrap.addEventListener('click', () => {
   }
 });
 
-/* =========================================================
-   启动
-   ========================================================= */
 buildModeTabs();
 buildDiffBar();
 renderStats();
