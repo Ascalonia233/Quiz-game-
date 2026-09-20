@@ -53,10 +53,6 @@ body.secret-theme .inputbar input:focus{
   border-color:#00d2ff;
   box-shadow:0 0 0 3px rgba(0,210,255,.22);
 }
-body.secret-theme .fish-cover{
-  border-color:rgba(0,210,255,.5);
-  box-shadow:0 6px 24px rgba(0,170,255,.35);
-}
 body.secret-theme .result button{
   background:linear-gradient(135deg,#00d2ff,#0066ff);
   box-shadow:0 8px 22px rgba(0,170,255,.42);
@@ -85,46 +81,39 @@ body.secret-theme .hintbar button{
 }
 .icon-btn:active{transform:scale(.92);background:rgba(255,255,255,.12)}
 
-/* ---------- 大肥鱼封面（修复图片裁剪问题） ---------- */
+/* ---------- 大肥鱼封面（修正：图片自适应，文本居中在下方） ---------- */
 .fish-cover{
-  width:100%;max-width:460px;
   margin-top:6px;
-  border-radius:14px;
-  overflow:hidden;
-  border:1px solid rgba(0,170,255,.25);
-  background:linear-gradient(180deg, rgba(0,170,255,.12), rgba(255,255,255,.02));
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 6px 20px rgba(0,0,0,.35);
-  position:relative;
-  cursor:pointer;
-  transition:transform .15s ease, border-color .3s, box-shadow .3s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:transform .15s ease;
   -webkit-tap-highlight-color:transparent;
-  padding: 10px 0;
-  min-height: 120px;
+  max-width:100%;
 }
-.fish-cover:active{transform:scale(.985)}
+.fish-cover:active{transform:scale(.98)}
 .fish-cover img{
-  max-width: 100%;
-  max-height: 150px;
-  object-fit: contain; /* 保证图片完整显示，不再裁剪 */
+  max-width:100%;
+  max-height:150px;
+  border-radius:14px;
+  border:1px solid rgba(0,170,255,.25);
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+  object-fit:contain; /* 完整显示，不裁剪 */
   display:block;
   pointer-events:none;
   -webkit-user-drag:none;
-  border-radius: 8px;
 }
 .fish-cover .fish-tag{
-  position:absolute;
-  bottom:5px;right:9px;
-  background:rgba(11,10,26,.8);
+  margin-top:8px;
+  background:rgba(0,0,0,.6);
   backdrop-filter:blur(4px);
-  padding:2px 7px;
-  border-radius:7px;
-  font-size:9.5px;
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:11px;
   color:#ccefff;
   font-weight:700;
   border:1px solid rgba(0,170,255,.3);
   pointer-events:none;
   transition:.3s;
+  text-align:center;
 }
 body.secret-theme .fish-cover .fish-tag{
   color:#00d2ff;
@@ -403,7 +392,7 @@ body.secret-theme .result{
   .hintbar .txt{font-size:11px}
   .inputbar input{font-size:15px;padding:11px 13px}
   .inputbar button{padding:0 14px;font-size:13px}
-  .fish-cover img{max-height:120px}
+  .fish-cover img{max-height:110px}
 }
 </style>
 </head>
@@ -417,7 +406,7 @@ body.secret-theme .result{
 <!-- 大肥鱼封面（点击7次解锁隐藏关卡） -->
 <div class="fish-cover" id="fishCover">
   <img src="cover.png" alt="Deepseek大肥鱼" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-  <div style="display:none;width:100%;height:150px;align-items:center;justify-content:center;font-size:32px;color:#00aaff;">🐟❓</div>
+  <div style="display:none;width:100%;height:110px;align-items:center;justify-content:center;font-size:32px;color:#00aaff;">🐟❓</div>
   <div class="fish-tag" id="fishTag">大肥鱼正在思考…</div>
 </div>
 
@@ -462,7 +451,7 @@ body.secret-theme .result{
 
 <script>
 /* =========================================================
-   难度配置
+   难度配置（困难模式：3次机会 / 1次提示）
    ========================================================= */
 const DIFFICULTY = {
   easy:   { name:'简单', tries:8, hints:2, icon:'🌱' },
@@ -471,18 +460,18 @@ const DIFFICULTY = {
 };
 
 /* =========================================================
-   词库
+   词库（提示词已极致升维，难度翻倍）
    ========================================================= */
 const DATA = {
   fruit: {
     name: '水果', icon: '🍎',
     items: [
-      ['苹果','从伊甸园到牛顿，它改变了世界'],
-      ['香蕉','穿黄衣，弯着腰，猴子见到就笑'],
-      ['葡萄','它们喜欢手拉手挤在一起，酿酒师最懂它们'],
-      ['西瓜','夏天最受欢迎的大块头，肚子里藏着黑色小秘密'],
+      ['苹果','砸醒过牛顿，也毒倒过白雪公主'],
+      ['香蕉','穿黄色外套，喜欢弯腰，猴子见到我就笑'],
+      ['葡萄','喜欢和兄弟们抱团，酿酒师看到我两眼放光'],
+      ['西瓜','夏天里最大的胖子，肚子里面藏黑豆'],
       ['草莓','戴着小绿帽，脸上长雀斑，甜到心坎里'],
-      ['芒果','来自热带，内心金黄，有核但难啃'],
+      ['芒果','来自热带，内心金黄，带个硬核'],
       ['桃子','脸上有绒毛，害羞就脸红，猴子爱偷'],
       ['橘子','穿橙外套，脱掉后里面住着一群小兄弟'],
       ['柠檬','黄色小心脏，酸得你皱眉，但有人爱泡它'],
@@ -685,34 +674,34 @@ const DATA = {
   idiom: {
     name: '成语', icon: '📜',
     items: [
-      ['画蛇添足','比喻多此一举，反而把事情弄糟'],
-      ['守株待兔','比喻死守经验，妄想不劳而获'],
-      ['亡羊补牢','比喻出了问题及时补救，还不算晚'],
+      ['画蛇添足','多此一举，弄巧成拙'],
+      ['守株待兔','死守经验，妄想不劳而获'],
+      ['亡羊补牢','出了问题及时补救，还不算晚'],
       ['井底之蛙','比喻见识短浅的人'],
-      ['狐假虎威','比喻依仗别人的势力欺压人'],
-      ['掩耳盗铃','比喻自己欺骗自己'],
-      ['刻舟求剑','比喻拘泥成法，不知变通'],
-      ['对牛弹琴','比喻对不懂的人讲道理，白费口舌'],
-      ['杯弓蛇影','比喻疑神疑鬼，自相惊扰'],
-      ['自相矛盾','比喻言行前后抵触，不一致'],
-      ['三心二意','形容犹豫不决或用心不专一'],
-      ['一心一意','形容心思专一，没有杂念'],
+      ['狐假虎威','依仗别人的势力欺压人'],
+      ['掩耳盗铃','自己欺骗自己'],
+      ['刻舟求剑','拘泥成法，不知变通'],
+      ['对牛弹琴','对不懂的人讲道理，白费口舌'],
+      ['杯弓蛇影','疑神疑鬼，自相惊扰'],
+      ['自相矛盾','言行前后抵触，不一致'],
+      ['三心二意','犹豫不决或用心不专一'],
+      ['一心一意','心思专一，没有杂念'],
       ['十全十美','形容完美无缺'],
       ['五颜六色','形容色彩繁多，非常好看'],
-      ['四面八方','指各个方向，各个地方'],
-      ['千军万马','形容人马众多，声势浩大'],
-      ['春暖花开','形容春天温暖，百花盛开的美景'],
-      ['鸟语花香','形容春天动人的景象'],
-      ['万紫千红','形容百花齐放，色彩绚丽'],
-      ['水落石出','比喻真相大白'],
-      ['画龙点睛','比喻在关键处点明要旨，使内容生动'],
-      ['叶公好龙','比喻表面上爱好，实际上并不真爱'],
-      ['望梅止渴','比喻用空想安慰自己'],
-      ['拔苗助长','比喻违反事物规律，急于求成'],
-      ['半途而废','比喻事情做到一半就放弃'],
-      ['水滴石穿','比喻只要坚持不懈，事情就能成功'],
-      ['三言两语','形容话说得很少'],
-      ['精卫填海','比喻意志坚决，不畏艰难']
+      ['四面八方','各个方向，各个地方'],
+      ['千军万马','人马众多，声势浩大'],
+      ['春暖花开','春天温暖，百花盛开'],
+      ['鸟语花香','春天动人的景象'],
+      ['万紫千红','百花齐放，色彩绚丽'],
+      ['水落石出','真相大白'],
+      ['画龙点睛','在关键处点明要旨'],
+      ['叶公好龙','表面上爱好，实际上并不真爱'],
+      ['望梅止渴','用空想安慰自己'],
+      ['拔苗助长','违反规律，急于求成'],
+      ['半途而废','做到一半就放弃'],
+      ['水滴石穿','坚持不懈就能成功'],
+      ['三言两语','话说得很少'],
+      ['精卫填海','意志坚决，不畏艰难']
     ]
   },
   /* ============ 隐藏关卡：大肥鱼の秘密 ============ */
